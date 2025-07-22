@@ -1,6 +1,7 @@
 // Global variables
 let drinkCount = 0;
 let emailSent = false;
+let drinkHistory = []; // Array to store drinking history
 
 // Settings with default values
 let settings = {
@@ -34,6 +35,14 @@ const emailjsTemplateIdInput = document.getElementById('emailjsTemplateId');
 const emailjsPublicKeyInput = document.getElementById('emailjsPublicKey');
 const enableRealEmailInput = document.getElementById('enableRealEmail');
 const testEmailBtn = document.getElementById('testEmail');
+// Statistics elements
+const statsButton = document.getElementById('statsButton');
+const statsModal = document.getElementById('statsModal');
+const closeStats = document.getElementById('closeStats');
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+const clearHistoryBtn = document.getElementById('clearHistory');
+const exportHistoryBtn = document.getElementById('exportHistory');
 
 // Message array - display different messages based on drink count
 const messages = {
@@ -111,10 +120,29 @@ function init() {
     resetSettingsBtn.addEventListener('click', resetSettingsToDefault);
     testEmailBtn.addEventListener('click', sendTestEmail);
     
+    // Statistics event listeners
+    statsButton.addEventListener('click', openStatsModal);
+    closeStats.addEventListener('click', closeStatsModal);
+    clearHistoryBtn.addEventListener('click', clearDrinkHistory);
+    exportHistoryBtn.addEventListener('click', exportDrinkHistory);
+    
+    // Tab switching
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            switchTab(this.dataset.tab);
+        });
+    });
+    
     // Close modal when clicking outside
     settingsModal.addEventListener('click', function(e) {
         if (e.target === settingsModal) {
             closeSettingsModal();
+        }
+    });
+    
+    statsModal.addEventListener('click', function(e) {
+        if (e.target === statsModal) {
+            closeStatsModal();
         }
     });
 }
@@ -123,6 +151,7 @@ function init() {
 function loadData() {
     const savedCount = localStorage.getItem('drinkCount');
     const savedEmailStatus = localStorage.getItem('emailSent');
+    const savedHistory = localStorage.getItem('drinkHistory');
     
     if (savedCount !== null) {
         drinkCount = parseInt(savedCount);
@@ -131,12 +160,17 @@ function loadData() {
     if (savedEmailStatus !== null) {
         emailSent = JSON.parse(savedEmailStatus);
     }
+    
+    if (savedHistory !== null) {
+        drinkHistory = JSON.parse(savedHistory);
+    }
 }
 
 // Save data to localStorage
 function saveData() {
     localStorage.setItem('drinkCount', drinkCount.toString());
     localStorage.setItem('emailSent', JSON.stringify(emailSent));
+    localStorage.setItem('drinkHistory', JSON.stringify(drinkHistory));
 }
 
 // Load settings from localStorage
@@ -281,6 +315,19 @@ function showMessage(text, color) {
 // Handle drink button click
 function handleDrinkClick() {
     drinkCount++;
+    
+    // Record drink in history
+    const now = new Date();
+    const today = now.toDateString();
+    const time = now.toLocaleTimeString();
+    
+    // Add to history
+    drinkHistory.push({
+        date: today,
+        time: time,
+        timestamp: now.getTime(),
+        count: drinkCount
+    });
     
     // Play sound effect if enabled
     if (settings.enableSounds) {
@@ -554,8 +601,9 @@ function handleReset() {
     if (confirm('Are you sure you want to reset the counter? This will clear all records!')) {
         drinkCount = 0;
         emailSent = false;
+        // Note: We don't clear history here, only today's count
         
-        // Clear localStorage
+        // Clear localStorage for current session
         localStorage.removeItem('drinkCount');
         localStorage.removeItem('emailSent');
         
@@ -635,4 +683,237 @@ window.addEventListener('beforeunload', function(e) {
         e.preventDefault();
         e.returnValue = 'Are you sure you want to leave? Your drinking record will be saved!';
     }
-}); 
+});
+
+// Statistics Functions
+function openStatsModal() {
+    updateStatistics();
+    statsModal.classList.remove('hidden');
+}
+
+function closeStatsModal() {
+    statsModal.classList.add('hidden');
+}
+
+function switchTab(tabName) {
+    // Remove active class from all tabs and contents
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+    
+    // Add active class to selected tab and content
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    document.getElementById(`${tabName}Tab`).classList.add('active');
+    
+    // Update statistics for the selected tab
+    updateTabContent(tabName);
+}
+
+function updateStatistics() {
+    updateTodayStats();
+    updateWeekStats();
+    updateMonthStats();
+    updateHistoryDisplay();
+}
+
+function updateTodayStats() {
+    const today = new Date().toDateString();
+    const todayDrinks = drinkHistory.filter(drink => drink.date === today);
+    const lastDrink = todayDrinks.length > 0 ? todayDrinks[todayDrinks.length - 1].time : 'Never';
+    
+    document.getElementById('todayCount').textContent = drinkCount;
+    document.getElementById('lastDrinkTime').textContent = lastDrink;
+    
+    let status = 'Good';
+    if (drinkCount >= settings.triggerCount * 2) {
+        status = 'Critical';
+    } else if (drinkCount >= settings.triggerCount) {
+        status = 'Warning';
+    }
+    
+    document.getElementById('todayStatus').textContent = status;
+    document.getElementById('todayStatus').style.color = 
+        status === 'Critical' ? '#e53e3e' : 
+        status === 'Warning' ? '#d69e2e' : '#48bb78';
+}
+
+function updateWeekStats() {
+    const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const weekDrinks = drinkHistory.filter(drink => drink.timestamp >= weekAgo);
+    
+    // Group by date
+    const dailyCounts = {};
+    weekDrinks.forEach(drink => {
+        const date = drink.date;
+        dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+    });
+    
+    const totalDrinks = weekDrinks.length;
+    const daysWithDrinks = Object.keys(dailyCounts).length;
+    const average = totalDrinks > 0 ? (totalDrinks / 7).toFixed(1) : '0.0';
+    
+    document.getElementById('weekTotal').textContent = totalDrinks;
+    document.getElementById('weekDays').textContent = `${daysWithDrinks}/7`;
+    document.getElementById('weekAverage').textContent = average;
+    
+    // Create weekly bar chart
+    createWeeklyChart(dailyCounts);
+}
+
+function updateMonthStats() {
+    const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const monthDrinks = drinkHistory.filter(drink => drink.timestamp >= monthAgo);
+    
+    // Group by date
+    const dailyCounts = {};
+    monthDrinks.forEach(drink => {
+        const date = drink.date;
+        dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+    });
+    
+    const totalDrinks = monthDrinks.length;
+    const daysWithDrinks = Object.keys(dailyCounts).length;
+    const worstDay = Object.keys(dailyCounts).reduce((worst, date) => {
+        return dailyCounts[date] > (dailyCounts[worst] || 0) ? date : worst;
+    }, 'None');
+    
+    document.getElementById('monthTotal').textContent = totalDrinks;
+    document.getElementById('monthDays').textContent = `${daysWithDrinks}/30`;
+    document.getElementById('monthWorst').textContent = 
+        worstDay !== 'None' ? `${worstDay} (${dailyCounts[worstDay]} drinks)` : 'None';
+}
+
+function createWeeklyChart(dailyCounts) {
+    const chartContainer = document.getElementById('weeklyBars');
+    chartContainer.innerHTML = '';
+    
+    // Get last 7 days
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        days.push(date.toDateString());
+    }
+    
+    const maxCount = Math.max(...days.map(date => dailyCounts[date] || 0), 1);
+    
+    days.forEach((date, index) => {
+        const count = dailyCounts[date] || 0;
+        const height = (count / maxCount) * 100;
+        
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = `${height}%`;
+        
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        label.textContent = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(date).getDay()];
+        
+        const value = document.createElement('div');
+        value.className = 'bar-value';
+        value.textContent = count;
+        
+        bar.appendChild(label);
+        bar.appendChild(value);
+        chartContainer.appendChild(bar);
+    });
+}
+
+function updateHistoryDisplay() {
+    const historyContainer = document.getElementById('historyList');
+    
+    if (drinkHistory.length === 0) {
+        historyContainer.innerHTML = '<p class="no-history">No history available yet. Start tracking!</p>';
+        return;
+    }
+    
+    // Group history by date
+    const groupedHistory = {};
+    drinkHistory.forEach(drink => {
+        const date = drink.date;
+        if (!groupedHistory[date]) {
+            groupedHistory[date] = [];
+        }
+        groupedHistory[date].push(drink);
+    });
+    
+    // Sort dates in descending order
+    const sortedDates = Object.keys(groupedHistory).sort((a, b) => new Date(b) - new Date(a));
+    
+    historyContainer.innerHTML = '';
+    sortedDates.slice(0, 10).forEach(date => { // Show only last 10 days
+        const drinks = groupedHistory[date];
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'history-date';
+        dateSpan.textContent = new Date(date).toLocaleDateString();
+        
+        const countSpan = document.createElement('span');
+        countSpan.className = 'history-count';
+        countSpan.textContent = `${drinks.length} drinks`;
+        
+        historyItem.appendChild(dateSpan);
+        historyItem.appendChild(countSpan);
+        historyContainer.appendChild(historyItem);
+    });
+}
+
+function updateTabContent(tabName) {
+    switch(tabName) {
+        case 'today':
+            updateTodayStats();
+            break;
+        case 'week':
+            updateWeekStats();
+            break;
+        case 'month':
+            updateMonthStats();
+            break;
+        case 'history':
+            updateHistoryDisplay();
+            break;
+    }
+}
+
+function clearDrinkHistory() {
+    if (confirm('Are you sure you want to clear all drinking history? This cannot be undone!')) {
+        drinkHistory = [];
+        localStorage.removeItem('drinkHistory');
+        updateStatistics();
+        showMessage('🗑️ History cleared successfully!', '#f56565');
+    }
+}
+
+function exportDrinkHistory() {
+    if (drinkHistory.length === 0) {
+        alert('No history to export!');
+        return;
+    }
+    
+    // Create CSV content
+    let csvContent = 'Date,Time,Drink Count,Total for Day\n';
+    
+    const dailyCounts = {};
+    drinkHistory.forEach(drink => {
+        const date = drink.date;
+        dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+    });
+    
+    drinkHistory.forEach(drink => {
+        csvContent += `"${drink.date}","${drink.time}",${drink.count},${dailyCounts[drink.date]}\n`;
+    });
+    
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `drink-history-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showMessage('📋 History exported successfully!', '#38b2ac');
+} 
