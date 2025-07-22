@@ -10,6 +10,7 @@ let settings = {
     customMessage: 'Help! I\'m drinking again and can\'t control myself!',
     enableSounds: true,
     enableDrunkEffect: true,
+    yourName: '', // 新增
     // EmailJS configuration (pre-configured)
     emailjsServiceId: 'service_9720w28',
     emailjsTemplateId: 'template_uzgtklk',
@@ -36,6 +37,7 @@ const customMessageInput = document.getElementById('customMessage');
 const enableSoundsInput = document.getElementById('enableSounds');
 // EmailJS inputs are hidden but testEmail button is still visible
 const testEmailBtn = document.getElementById('testEmail');
+const yourNameInput = document.getElementById('yourName');
 // Statistics elements
 const statsButton = document.getElementById('statsButton');
 const statsModal = document.getElementById('statsModal');
@@ -105,6 +107,20 @@ const advancedGagMessages = [
     "😈 The bartender says: 'One more and you get a pitchfork!'",
     "👹 You just unlocked the 'Hell's Happy Hour' achievement!",
     "🪦 Your liver is writing its memoirs... in Latin!"
+];
+
+// 喪又地獄的按鈕文案
+const hellButtonTexts = [
+    "🍻 Another step closer to the abyss",
+    "🍻 Cheers from the underworld",
+    "🍻 My liver just filed a complaint",
+    "🍻 Unlocking new levels of regret",
+    "🍻 The devil is watching",
+    "🍻 This is how legends (and hangovers) are made",
+    "🍻 My soul just got a little darker",
+    "🍻 One more for the road to hell",
+    "🍻 The bartender in hell is proud",
+    "🍻 My future self is crying"
 ];
 
 // Initialize
@@ -223,6 +239,7 @@ function saveSettingsData() {
     settings.customMessage = customMessageInput.value.trim();
     settings.enableSounds = enableSoundsInput.checked;
     settings.enableDrunkEffect = enableDrunkEffectInput.checked;
+    settings.yourName = yourNameInput.value.trim();
     // EmailJS settings (pre-configured, no need to update)
     
     // Validation for multiple emails
@@ -261,6 +278,7 @@ function updateSettingsUI() {
     customMessageInput.value = settings.customMessage;
     enableSoundsInput.checked = settings.enableSounds;
     enableDrunkEffectInput.checked = settings.enableDrunkEffect;
+    yourNameInput.value = settings.yourName || '';
     // EmailJS settings are pre-configured and hidden
 }
 
@@ -284,6 +302,7 @@ function resetSettingsToDefault() {
             customMessage: 'Help! I\'m drinking again and can\'t control myself!',
             enableSounds: true,
             enableDrunkEffect: true,
+            yourName: '', // 新增
             // EmailJS configuration (pre-configured)
             emailjsServiceId: 'service_9720w28',
             emailjsTemplateId: 'template_uzgtklk',
@@ -482,7 +501,9 @@ function updateButtonText() {
     if (drinkCount === 0) {
         drinkButton.innerHTML = '🍻 I had a drink';
     } else {
-        drinkButton.innerHTML = '🍻 I had another drink';
+        // 隨機選一個地獄梗
+        const idx = Math.floor(Math.random() * hellButtonTexts.length);
+        drinkButton.innerHTML = hellButtonTexts[idx];
     }
 }
 
@@ -544,7 +565,7 @@ function sendRealEmailToMultiple(emails, customMessage, drinkCount) {
     // EmailJS is already initialized globally
     
     const templateParams = {
-        from_name: 'Drink Limiter App',
+        from_name: settings.yourName || 'Your friend',
         subject: 'Emergency Notification - Drinking Alert!',
         message: customMessage,
         drink_count: drinkCount,
