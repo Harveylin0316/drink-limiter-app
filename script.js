@@ -9,6 +9,8 @@ let settings = {
     triggerCount: 3,
     customMessage: 'Help! I\'m drinking again and can\'t control myself!',
     enableSounds: true,
+    drinkPrice: 8.00,
+    enableDrunkEffect: true,
     // EmailJS configuration
     emailjsServiceId: '',
     emailjsTemplateId: '',
@@ -43,6 +45,12 @@ const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
 const clearHistoryBtn = document.getElementById('clearHistory');
 const exportHistoryBtn = document.getElementById('exportHistory');
+// New feature elements
+const drinkPriceInput = document.getElementById('drinkPrice');
+const enableDrunkEffectInput = document.getElementById('enableDrunkEffect');
+const walletDisplay = document.getElementById('walletDisplay');
+const moneySavedToday = document.getElementById('moneySavedToday');
+const moneyMessage = document.getElementById('moneyMessage');
 
 // Message array - display different messages based on drink count
 const messages = {
@@ -191,6 +199,8 @@ function saveSettingsData() {
     settings.triggerCount = parseInt(triggerCountInput.value);
     settings.customMessage = customMessageInput.value.trim();
     settings.enableSounds = enableSoundsInput.checked;
+    settings.drinkPrice = parseFloat(drinkPriceInput.value) || 8.00;
+    settings.enableDrunkEffect = enableDrunkEffectInput.checked;
     // EmailJS settings
     settings.emailjsServiceId = emailjsServiceIdInput.value.trim();
     settings.emailjsTemplateId = emailjsTemplateIdInput.value.trim();
@@ -232,6 +242,8 @@ function updateSettingsUI() {
     triggerCountInput.value = settings.triggerCount;
     customMessageInput.value = settings.customMessage;
     enableSoundsInput.checked = settings.enableSounds;
+    drinkPriceInput.value = settings.drinkPrice.toFixed(2);
+    enableDrunkEffectInput.checked = settings.enableDrunkEffect;
     // EmailJS settings
     emailjsServiceIdInput.value = settings.emailjsServiceId;
     emailjsTemplateIdInput.value = settings.emailjsTemplateId;
@@ -258,6 +270,8 @@ function resetSettingsToDefault() {
             triggerCount: 3,
             customMessage: 'Help! I\'m drinking again and can\'t control myself!',
             enableSounds: true,
+            drinkPrice: 8.00,
+            enableDrunkEffect: true,
             // EmailJS configuration
             emailjsServiceId: '',
             emailjsTemplateId: '',
@@ -393,6 +407,12 @@ function updateDisplay() {
     
     // Update button text
     updateButtonText();
+    
+    // Update drunk effects
+    updateDrunkEffects();
+    
+    // Update wallet display
+    updateWalletDisplay();
 }
 
 // Update message area
@@ -734,6 +754,9 @@ function updateTodayStats() {
     document.getElementById('todayStatus').style.color = 
         status === 'Critical' ? '#e53e3e' : 
         status === 'Warning' ? '#d69e2e' : '#48bb78';
+        
+    // Update money stats
+    updateTodayStatsWithMoney();
 }
 
 function updateWeekStats() {
@@ -757,6 +780,9 @@ function updateWeekStats() {
     
     // Create weekly bar chart
     createWeeklyChart(dailyCounts);
+    
+    // Update money stats
+    updateWeekStatsWithMoney();
 }
 
 function updateMonthStats() {
@@ -780,6 +806,9 @@ function updateMonthStats() {
     document.getElementById('monthDays').textContent = `${daysWithDrinks}/30`;
     document.getElementById('monthWorst').textContent = 
         worstDay !== 'None' ? `${worstDay} (${dailyCounts[worstDay]} drinks)` : 'None';
+        
+    // Update money stats
+    updateMonthStatsWithMoney();
 }
 
 function createWeeklyChart(dailyCounts) {
@@ -916,4 +945,138 @@ function exportDrinkHistory() {
     window.URL.revokeObjectURL(url);
     
     showMessage('📋 History exported successfully!', '#38b2ac');
+}
+
+// Drunk Effect Functions
+function updateDrunkEffects() {
+    if (!settings.enableDrunkEffect) {
+        removeDrunkEffects();
+        return;
+    }
+    
+    const container = document.querySelector('.container');
+    const button = document.querySelector('.drink-button');
+    
+    // Remove existing drunk classes
+    removeDrunkEffects();
+    
+    // Apply drunk effects based on drink count
+    if (drinkCount >= 2 && drinkCount <= 3) {
+        container.classList.add('drunk-level-1');
+    } else if (drinkCount >= 4 && drinkCount <= 5) {
+        container.classList.add('drunk-level-2');
+        button.classList.add('drunk-button');
+    } else if (drinkCount >= 6 && drinkCount <= 8) {
+        container.classList.add('drunk-level-3');
+        button.classList.add('drunk-button');
+        addDrunkText();
+    } else if (drinkCount >= 9) {
+        container.classList.add('drunk-level-4');
+        button.classList.add('drunk-button');
+        addDrunkText();
+    }
+}
+
+function removeDrunkEffects() {
+    const container = document.querySelector('.container');
+    const button = document.querySelector('.drink-button');
+    
+    container.classList.remove('drunk-level-1', 'drunk-level-2', 'drunk-level-3', 'drunk-level-4');
+    button.classList.remove('drunk-button');
+    
+    // Remove drunk text effects
+    const drunkTexts = document.querySelectorAll('.drunk-text');
+    drunkTexts.forEach(element => {
+        element.classList.remove('drunk-text');
+        element.removeAttribute('data-text');
+    });
+}
+
+function addDrunkText() {
+    const textElements = document.querySelectorAll('h1, .subtitle, .message-area p');
+    textElements.forEach(element => {
+        if (!element.classList.contains('drunk-text')) {
+            element.classList.add('drunk-text');
+            element.setAttribute('data-text', element.textContent);
+        }
+    });
+}
+
+// Virtual Wallet Functions
+function updateWalletDisplay() {
+    if (drinkCount === 0 && !walletDisplay.classList.contains('hidden')) {
+        walletDisplay.classList.add('hidden');
+        return;
+    }
+    
+    if (drinkCount > 0) {
+        walletDisplay.classList.remove('hidden');
+        
+        // Calculate money spent today
+        const moneySpent = drinkCount * settings.drinkPrice;
+        moneySavedToday.textContent = `$${moneySpent.toFixed(2)}`;
+        
+        // Update motivational message
+        updateMoneyMessage(moneySpent);
+    }
+}
+
+function updateMoneyMessage(moneySpent) {
+    const messages = [
+        { max: 20, text: "Not too bad! You're keeping it reasonable 💪" },
+        { max: 50, text: "That's a nice dinner you just drank! 🍽️" },
+        { max: 100, text: "Whoa! That could've been a new pair of shoes! 👟" },
+        { max: 200, text: "You could've bought groceries for a week! 🛒" },
+        { max: 500, text: "That's a weekend getaway you just drank! ✈️" },
+        { max: Infinity, text: "You're entering legendary spending territory! 💸" }
+    ];
+    
+    const message = messages.find(m => moneySpent <= m.max);
+    moneyMessage.textContent = message.text;
+    
+    // Add extra encouragement if they're drinking a lot
+    if (moneySpent > 100) {
+        moneyMessage.style.color = '#f56565';
+        moneyMessage.style.fontWeight = 'bold';
+    } else {
+        moneyMessage.style.color = 'rgba(255,255,255,0.9)';
+        moneyMessage.style.fontWeight = 'normal';
+    }
+}
+
+// Update statistics with money calculations
+function updateTodayStatsWithMoney() {
+    const moneySpent = drinkCount * settings.drinkPrice;
+    const couldHaveSaved = moneySpent; // If they had 0 drinks
+    
+    if (document.getElementById('moneySpentToday')) {
+        document.getElementById('moneySpentToday').textContent = `$${moneySpent.toFixed(2)}`;
+    }
+    if (document.getElementById('couldHaveSavedToday')) {
+        document.getElementById('couldHaveSavedToday').textContent = `$${couldHaveSaved.toFixed(2)}`;
+    }
+}
+
+function updateWeekStatsWithMoney() {
+    const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const weekDrinks = drinkHistory.filter(drink => drink.timestamp >= weekAgo);
+    const moneySpent = weekDrinks.length * settings.drinkPrice;
+    
+    if (document.getElementById('moneySpentWeek')) {
+        document.getElementById('moneySpentWeek').textContent = `$${moneySpent.toFixed(2)}`;
+    }
+}
+
+function updateMonthStatsWithMoney() {
+    const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const monthDrinks = drinkHistory.filter(drink => drink.timestamp >= monthAgo);
+    const moneySpent = monthDrinks.length * settings.drinkPrice;
+    const potentialSavings = moneySpent; // What they could have saved
+    
+    if (document.getElementById('moneySpentMonth')) {
+        document.getElementById('moneySpentMonth').textContent = `$${moneySpent.toFixed(2)}`;
+    }
+    if (document.getElementById('potentialSavingsMonth')) {
+        document.getElementById('potentialSavingsMonth').textContent = `$${potentialSavings.toFixed(2)} saved!`;
+    }
 } 
