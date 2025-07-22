@@ -54,57 +54,57 @@ const messages = {
         class: ""
     },
     1: {
-        text: "First drink... not too bad, just drink responsibly 🤔",
+        text: "First drink... Welcome to the underworld bar! 🍻😈",
         class: ""
     },
     2: {
-        text: "Second drink! Time to start paying attention 😬",
+        text: "Second drink! The bartender in hell is smiling at you 😏🔥",
         class: "warning"
     },
     3: {
-        text: "Third drink!!! Your friends have been notified 📧😱",
+        text: "Third drink!!! You just unlocked the 'Inferno Sipper' badge 🏅🔥",
         class: "danger"
     },
     4: {
-        text: "Fourth drink... can't you really stop yourself? 🤯",
+        text: "Fourth drink... Your liver is googling 'how to escape' 🫥",
         class: "danger"
     },
     5: {
-        text: "Fifth drink! You've been reported! Friends are on their way 🚨",
+        text: "Fifth drink! The devil is offering you a VIP seat 😈🍷",
         class: "critical"
     },
     6: {
-        text: "Sixth drink... your liver is crying 😭🍾",
+        text: "Sixth drink... Your wallet just started crying 💸😭",
         class: "critical"
     },
     7: {
-        text: "Seventh drink! Emergency status! Your friends are mobilized 🚑",
+        text: "Seventh drink! You are now trending on Hell's Instagram 🔥📸",
         class: "critical"
     },
     8: {
-        text: "Eighth drink... you've entered the danger zone ⚠️💀",
+        text: "Eighth drink... The bartender is asking for your autograph 🖊️🍺",
         class: "critical"
     },
     9: {
-        text: "Ninth drink! Your drinking license is about to be revoked 📜❌",
+        text: "Ninth drink! You are now a legend in the underworld 🍻👹",
         class: "critical"
     },
     10: {
-        text: "Tenth drink... legendary level, you've become the god of drinking 🍺👑",
+        text: "Tenth drink... The gates of hell are wide open for you 🚪🔥",
         class: "critical"
     }
 };
 
 // Advanced gag messages (randomly appear)
 const advancedGagMessages = [
-    "🔔 Your family has been notified",
-    "📱 Calling alcohol hotline...",
-    "🚨 Alcohol detector activated",
-    "📋 Your drinking record has been uploaded to cloud",
-    "👮‍♀️ DUI patrol unit dispatched",
-    "🏥 Nearby hospital has received your reservation",
-    "📺 You've become today's headline news",
-    "🎯 Your GPS location has been shared with all contacts"
+    "🍕 Your pizza delivery guy is now your drinking buddy!",
+    "🦴 Your skeleton is dancing the Macarena!",
+    "💀 The devil just sent you a friend request!",
+    "🔥 You just earned a free ticket to the underworld party!",
+    "🍻 Your drinks are now sponsored by the River Styx!",
+    "😈 The bartender says: 'One more and you get a pitchfork!'",
+    "👹 You just unlocked the 'Hell's Happy Hour' achievement!",
+    "🪦 Your liver is writing its memoirs... in Latin!"
 ];
 
 // Initialize
@@ -479,17 +479,11 @@ function updateMessage() {
 
 // Update button text
 function updateButtonText() {
-    const buttonTexts = [
-        '🍻 I had another drink',
-        '🍺 One more drink',
-        '🥃 Can\'t stop myself',
-        '🍷 Already drunk',
-        '🍾 Completely out of control',
-        '🥂 I am the drink god'
-    ];
-    
-    let textIndex = Math.min(Math.floor(drinkCount / 2), buttonTexts.length - 1);
-    drinkButton.textContent = buttonTexts[textIndex];
+    if (drinkCount === 0) {
+        drinkButton.innerHTML = '🍻 I had a drink';
+    } else {
+        drinkButton.innerHTML = '🍻 I had another drink';
+    }
 }
 
 // Send email notification (real or simulated)
