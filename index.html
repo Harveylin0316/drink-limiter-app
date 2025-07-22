@@ -264,6 +264,16 @@ colleague@example.com"></textarea>
     
     <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        // Fallback: if EmailJS fails to load, show error
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (typeof emailjs === 'undefined') {
+                    console.error('⚠️ EmailJS SDK failed to load from CDN');
+                }
+            }, 2000);
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html> 

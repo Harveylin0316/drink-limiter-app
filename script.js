@@ -488,10 +488,20 @@ function sendEmailNotification() {
 
 // Check if EmailJS is properly configured
 function isEmailJSConfigured() {
+    console.log('🔍 Checking EmailJS configuration...');
+    console.log('📧 Service ID:', settings.emailjsServiceId ? 'SET' : 'MISSING');
+    console.log('📧 Template ID:', settings.emailjsTemplateId ? 'SET' : 'MISSING');
+    console.log('📧 Public Key:', settings.emailjsPublicKey ? 'SET' : 'MISSING');
+    console.log('📧 EmailJS SDK:', typeof emailjs !== 'undefined' ? 'LOADED' : 'NOT LOADED');
+    
+    if (typeof emailjs === 'undefined') {
+        console.error('❌ EmailJS SDK not loaded yet!');
+        return false;
+    }
+    
     return settings.emailjsServiceId && 
            settings.emailjsTemplateId && 
-           settings.emailjsPublicKey &&
-           typeof emailjs !== 'undefined';
+           settings.emailjsPublicKey;
 }
 
 // Send real email to multiple recipients using EmailJS
@@ -502,8 +512,14 @@ function sendRealEmailToMultiple(emails, customMessage, drinkCount) {
         return;
     }
 
-    // Initialize EmailJS with public key
-    emailjs.init(settings.emailjsPublicKey);
+    // Check if EmailJS is available
+    if (typeof emailjs === 'undefined') {
+        console.error('❌ EmailJS SDK not available!');
+        alert('EmailJS SDK not loaded. Please refresh the page and try again.');
+        return;
+    }
+
+    // EmailJS is already initialized globally
     
     const templateParams = {
         from_name: 'Drink Limiter App',
@@ -559,6 +575,8 @@ function sendRealEmail(toEmail, customMessage, drinkCount) {
 
 // Send test email
 function sendTestEmail() {
+    console.log('🧪 Test email button clicked');
+    
     const emails = parseEmails(settings.friendEmail);
     
     if (emails.length === 0) {
@@ -566,8 +584,15 @@ function sendTestEmail() {
         return;
     }
     
+    // Check EmailJS availability first
+    if (typeof emailjs === 'undefined') {
+        console.error('❌ EmailJS SDK not loaded');
+        alert('EmailJS is still loading. Please wait a few seconds and try again.');
+        return;
+    }
+    
     if (!isEmailJSConfigured()) {
-        alert('EmailJS configuration error! Please contact support.');
+        alert('EmailJS configuration error! Please check the browser console for details.');
         return;
     }
     
@@ -726,8 +751,22 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Initialize after page load
-document.addEventListener('DOMContentLoaded', init);
+// Wait for all resources including EmailJS to load
+window.addEventListener('load', function() {
+    console.log('🚀 Page fully loaded, checking EmailJS...');
+    
+    // Give EmailJS a moment to initialize
+    setTimeout(() => {
+        if (typeof emailjs !== 'undefined') {
+            console.log('✅ EmailJS SDK loaded successfully');
+            // Initialize EmailJS immediately when available
+            emailjs.init(settings.emailjsPublicKey);
+        } else {
+            console.warn('⚠️ EmailJS SDK not available, email features may not work');
+        }
+        init();
+    }, 1000);
+});
 
 // Extra feature: keyboard shortcuts
 document.addEventListener('keydown', function(e) {
