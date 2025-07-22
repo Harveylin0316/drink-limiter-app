@@ -85,34 +85,45 @@
                     <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
                     
                     <div class="setting-group">
-                        <h3 style="color: #667eea; margin-bottom: 15px;">📧 Email Service Configuration</h3>
-                        <label for="emailjsServiceId">EmailJS Service ID:</label>
-                        <input type="text" id="emailjsServiceId" placeholder="service_xxxxxxx">
-                        <small>Get this from your EmailJS dashboard</small>
+                        <div class="email-status-message">
+                            <span style="color: #718096; font-size: 0.95em;">
+                                📧 Email automatic sending system is connected and ready
+                            </span>
+                        </div>
                     </div>
                     
-                    <div class="setting-group">
-                        <label for="emailjsTemplateId">EmailJS Template ID:</label>
-                        <input type="text" id="emailjsTemplateId" placeholder="template_xxxxxxx">
-                        <small>Create a template in EmailJS dashboard</small>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="emailjsPublicKey">EmailJS Public Key:</label>
-                        <input type="text" id="emailjsPublicKey" placeholder="xxxxxxxxxxxxxxxx">
-                        <small>Your EmailJS public key (User ID)</small>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label>
-                            <input type="checkbox" id="enableRealEmail"> Enable real email sending
-                        </label>
-                        <small>Toggle between simulation and real email sending</small>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <button id="testEmail" class="test-email-btn">🧪 Send Test Email</button>
-                        <small>Test your email configuration</small>
+                    <!-- Hidden EmailJS Configuration -->
+                    <div id="emailjsConfig" style="display: none;">
+                        <div class="setting-group">
+                            <h3 style="color: #667eea; margin-bottom: 15px;">📧 Email Service Configuration</h3>
+                            <label for="emailjsServiceId">EmailJS Service ID:</label>
+                            <input type="text" id="emailjsServiceId" placeholder="service_xxxxxxx">
+                            <small>Get this from your EmailJS dashboard</small>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="emailjsTemplateId">EmailJS Template ID:</label>
+                            <input type="text" id="emailjsTemplateId" placeholder="template_xxxxxxx">
+                            <small>Create a template in EmailJS dashboard</small>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="emailjsPublicKey">EmailJS Public Key:</label>
+                            <input type="text" id="emailjsPublicKey" placeholder="xxxxxxxxxxxxxxxx">
+                            <small>Your EmailJS public key (User ID)</small>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label>
+                                <input type="checkbox" id="enableRealEmail"> Enable real email sending
+                            </label>
+                            <small>Toggle between simulation and real email sending</small>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <button id="testEmail" class="test-email-btn">🧪 Send Test Email</button>
+                            <small>Test your email configuration</small>
+                        </div>
                     </div>
                 </div>
                 

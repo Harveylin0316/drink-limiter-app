@@ -434,6 +434,23 @@ footer {
     box-shadow: 0 3px 10px rgba(159, 122, 234, 0.3);
 }
 
+/* Email status message */
+.email-status-message {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.email-status-message span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
 /* 統計模態窗口樣式 */
 .stats-modal .modal-content {
     max-width: 600px;
