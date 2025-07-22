@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink Limiter: Stop Me From Drinking</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍺 Drink Limiter</h1>
+            <p class="subtitle">Stop me from drinking more!</p>
+        </header>
+        
+        <main>
+            <div class="counter-section">
+                <div class="counter-display">
+                    <span class="count-number">0</span>
+                    <span class="count-label">drinks</span>
+                </div>
+            </div>
+            
+            <div class="button-section">
+                <button id="drinkButton" class="drink-button">
+                    🍻 I had another drink
+                </button>
+            </div>
+            
+            <div class="message-section">
+                <div id="messageArea" class="message-area">
+                    <p>You haven't had any drinks today! Keep it up! 💪</p>
+                </div>
+            </div>
+            
+            <div class="reset-section">
+                <button id="resetButton" class="reset-button">
+                    🔄 Reset Counter
+                </button>
+            </div>
+            
+            <div class="settings-section">
+                <button id="settingsButton" class="settings-button">
+                    ⚙️ Settings
+                </button>
+                <button id="statsButton" class="stats-button">
+                    📊 Statistics
+                </button>
+            </div>
+        </main>
+        
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚙️ Settings</h2>
+                    <button id="closeSettings" class="close-btn">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="friendEmail">Friend's Email:</label>
+                        <input type="email" id="friendEmail" placeholder="friend@example.com">
+                        <small>Email address to notify when you drink too much</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="triggerCount">Trigger after drinks:</label>
+                        <input type="number" id="triggerCount" min="1" max="10" value="3">
+                        <small>Number of drinks before sending notification</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="customMessage">Custom message:</label>
+                        <textarea id="customMessage" placeholder="Help! I'm drinking again and can't control myself!"></textarea>
+                        <small>Personal message to include in the notification</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="enableSounds"> Enable sound notifications
+                        </label>
+                    </div>
+                    
+                    <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
+                    
+                    <div class="setting-group">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">📧 Email Service Configuration</h3>
+                        <label for="emailjsServiceId">EmailJS Service ID:</label>
+                        <input type="text" id="emailjsServiceId" placeholder="service_xxxxxxx">
+                        <small>Get this from your EmailJS dashboard</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="emailjsTemplateId">EmailJS Template ID:</label>
+                        <input type="text" id="emailjsTemplateId" placeholder="template_xxxxxxx">
+                        <small>Create a template in EmailJS dashboard</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="emailjsPublicKey">EmailJS Public Key:</label>
+                        <input type="text" id="emailjsPublicKey" placeholder="xxxxxxxxxxxxxxxx">
+                        <small>Your EmailJS public key (User ID)</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="enableRealEmail"> Enable real email sending
+                        </label>
+                        <small>Toggle between simulation and real email sending</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <button id="testEmail" class="test-email-btn">🧪 Send Test Email</button>
+                        <small>Test your email configuration</small>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button id="saveSettings" class="save-btn">💾 Save Settings</button>
+                    <button id="resetSettings" class="reset-settings-btn">🔄 Reset to Default</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistics Modal -->
+        <div id="statsModal" class="modal hidden">
+            <div class="modal-content stats-modal">
+                <div class="modal-header">
+                    <h2>📊 Drinking Statistics</h2>
+                    <button id="closeStats" class="close-btn">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="stats-tabs">
+                        <button class="tab-btn active" data-tab="today">Today</button>
+                        <button class="tab-btn" data-tab="week">This Week</button>
+                        <button class="tab-btn" data-tab="month">This Month</button>
+                        <button class="tab-btn" data-tab="history">History</button>
+                    </div>
+                    
+                    <div id="todayTab" class="tab-content active">
+                        <div class="stat-card">
+                            <h3>📅 Today's Stats</h3>
+                            <div class="stat-item">
+                                <span class="stat-label">Current Count:</span>
+                                <span id="todayCount" class="stat-value">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Last Drink:</span>
+                                <span id="lastDrinkTime" class="stat-value">Never</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Status:</span>
+                                <span id="todayStatus" class="stat-value">Good</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="weekTab" class="tab-content">
+                        <div class="stat-card">
+                            <h3>📆 This Week's Stats</h3>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Drinks:</span>
+                                <span id="weekTotal" class="stat-value">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Days with Drinks:</span>
+                                <span id="weekDays" class="stat-value">0/7</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Average per Day:</span>
+                                <span id="weekAverage" class="stat-value">0.0</span>
+                            </div>
+                        </div>
+                        <div id="weeklyChart" class="chart-container">
+                            <h4>Daily Breakdown:</h4>
+                            <div id="weeklyBars" class="bar-chart"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="monthTab" class="tab-content">
+                        <div class="stat-card">
+                            <h3>📈 This Month's Stats</h3>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Drinks:</span>
+                                <span id="monthTotal" class="stat-value">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Days with Drinks:</span>
+                                <span id="monthDays" class="stat-value">0/30</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Worst Day:</span>
+                                <span id="monthWorst" class="stat-value">None</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="historyTab" class="tab-content">
+                        <div class="stat-card">
+                            <h3>📜 Drinking History</h3>
+                            <div id="historyList" class="history-list">
+                                <p class="no-history">No history available yet. Start tracking!</p>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button id="clearHistory" class="clear-history-btn">🗑️ Clear History</button>
+                            <button id="exportHistory" class="export-history-btn">📋 Export Data</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Remember: Drink responsibly, live healthy ❤️</p>
+        </footer>
+    </div>
+    
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
