@@ -7,19 +7,20 @@
 
 body {
     font-family: 'Arial', '微軟正黑體', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d1b2d 50%, #1f0a0a 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #333;
+    color: #e0e0e0;
 }
 
 .container {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(20, 20, 20, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(139, 0, 0, 0.3), inset 0 0 20px rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(139, 0, 0, 0.3);
     padding: 40px;
     text-align: center;
     max-width: 500px;
@@ -31,14 +32,16 @@ body {
 header h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
-    color: #4a5568;
+    color: #ff4444;
     font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 68, 68, 0.5), 0 0 20px rgba(255, 0, 0, 0.3);
 }
 
 .subtitle {
     font-size: 1.1em;
-    color: #718096;
+    color: #cc9999;
     margin-bottom: 30px;
+    text-shadow: 0 0 5px rgba(204, 153, 153, 0.3);
 }
 
 /* 計數器區域 */
@@ -47,13 +50,14 @@ header h1 {
 }
 
 .counter-display {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
+    background: linear-gradient(135deg, #8B0000, #4A0000, #000000);
+    color: #ff4444;
     padding: 30px;
     border-radius: 15px;
     display: inline-block;
     min-width: 150px;
-    box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 10px 20px rgba(139, 0, 0, 0.6), inset 0 0 15px rgba(255, 0, 0, 0.1);
+    border: 2px solid #8B0000;
     transform: scale(1);
     transition: all 0.3s ease;
 }
@@ -79,16 +83,17 @@ header h1 {
 }
 
 .drink-button {
-    background: linear-gradient(135deg, #ffa726, #fb8c00);
-    border: none;
-    color: white;
+    background: linear-gradient(135deg, #8B0000, #B22222, #DC143C);
+    border: 2px solid #8B0000;
+    color: #ffcccc;
     font-size: 1.3em;
     padding: 15px 30px;
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(255, 167, 38, 0.4);
+    box-shadow: 0 5px 15px rgba(139, 0, 0, 0.6), inset 0 0 10px rgba(255, 0, 0, 0.1);
     font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }
 
 .drink-button:hover {
@@ -106,8 +111,8 @@ header h1 {
 }
 
 .message-area {
-    background: #f7fafc;
-    border: 2px solid #e2e8f0;
+    background: rgba(30, 30, 30, 0.9);
+    border: 2px solid #666;
     border-radius: 15px;
     padding: 20px;
     min-height: 80px;
@@ -115,6 +120,7 @@ header h1 {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .message-area p {
@@ -125,27 +131,36 @@ header h1 {
 
 /* 不同等級的訊息樣式 */
 .message-area.warning {
-    background: #fff5f5;
-    border-color: #fed7d7;
-    color: #c53030;
+    background: rgba(139, 69, 19, 0.3);
+    border-color: #8B4513;
+    color: #FFB347;
+    box-shadow: inset 0 0 15px rgba(139, 69, 19, 0.5);
 }
 
 .message-area.danger {
-    background: #fffaf0;
-    border-color: #fbb6ce;
-    color: #d69e2e;
+    background: rgba(139, 0, 0, 0.4);
+    border-color: #8B0000;
+    color: #FF6B6B;
+    box-shadow: inset 0 0 15px rgba(139, 0, 0, 0.7);
 }
 
 .message-area.critical {
-    background: #1a202c;
-    border-color: #e53e3e;
-    color: #fed7d7;
-    animation: pulse 2s infinite;
+    background: rgba(0, 0, 0, 0.8);
+    border-color: #DC143C;
+    color: #FF4444;
+    animation: hellPulse 2s infinite;
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.6), inset 0 0 20px rgba(255, 0, 0, 0.3);
 }
 
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
+@keyframes hellPulse {
+    0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 20px rgba(220, 20, 60, 0.6), inset 0 0 20px rgba(255, 0, 0, 0.3);
+    }
+    50% { 
+        transform: scale(1.02); 
+        box-shadow: 0 0 30px rgba(220, 20, 60, 0.9), inset 0 0 30px rgba(255, 0, 0, 0.5);
+    }
 }
 
 /* 重置按鈕 */
@@ -154,15 +169,15 @@ header h1 {
 }
 
 .reset-button {
-    background: linear-gradient(135deg, #48bb78, #38a169);
-    border: none;
-    color: white;
+    background: linear-gradient(135deg, #2F4F2F, #1C1C1C, #000000);
+    border: 2px solid #2F4F2F;
+    color: #90EE90;
     font-size: 1em;
     padding: 12px 25px;
     border-radius: 25px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(72, 187, 120, 0.3);
+    box-shadow: 0 3px 10px rgba(47, 79, 47, 0.6), inset 0 0 8px rgba(144, 238, 144, 0.1);
 }
 
 .reset-button:hover {
@@ -176,15 +191,15 @@ header h1 {
 }
 
 .settings-button {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border: none;
-    color: white;
+    background: linear-gradient(135deg, #4B0082, #2F2F2F, #000000);
+    border: 2px solid #4B0082;
+    color: #DA70D6;
     font-size: 1em;
     padding: 10px 20px;
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 3px 10px rgba(75, 0, 130, 0.6), inset 0 0 8px rgba(218, 112, 214, 0.1);
 }
 
 .settings-button:hover {
@@ -194,15 +209,15 @@ header h1 {
 
 /* 統計按鈕 */
 .stats-button {
-    background: linear-gradient(135deg, #38b2ac, #319795);
-    border: none;
-    color: white;
+    background: linear-gradient(135deg, #800080, #2F2F2F, #000000);
+    border: 2px solid #800080;
+    color: #FFB6C1;
     font-size: 1em;
     padding: 10px 20px;
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(56, 178, 172, 0.3);
+    box-shadow: 0 3px 10px rgba(128, 0, 128, 0.6), inset 0 0 8px rgba(255, 182, 193, 0.1);
     margin-left: 10px;
 }
 
@@ -262,15 +277,17 @@ footer {
 }
 
 .modal-content {
-    background: white;
+    background: rgba(20, 20, 20, 0.95);
     border-radius: 20px;
     max-width: 500px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(139, 0, 0, 0.5), inset 0 0 20px rgba(255, 0, 0, 0.1);
+    border: 2px solid #8B0000;
     transform: scale(1);
     transition: transform 0.3s ease;
+    color: #e0e0e0;
 }
 
 .modal.hidden .modal-content {
@@ -278,13 +295,14 @@ footer {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
+    background: linear-gradient(135deg, #8B0000, #4A0000, #000000);
+    color: #FF4444;
     padding: 20px;
     border-radius: 20px 20px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
 }
 
 .modal-header h2 {
@@ -460,12 +478,13 @@ footer {
 
 /* Virtual Wallet Display */
 .wallet-display {
-    background: linear-gradient(135deg, #48bb78, #38a169);
-    color: white;
+    background: linear-gradient(135deg, #8B4513, #654321, #2F1B14);
+    color: #FFD700;
     padding: 20px;
     border-radius: 15px;
     margin-top: 20px;
-    box-shadow: 0 8px 20px rgba(72, 187, 120, 0.3);
+    box-shadow: 0 8px 20px rgba(139, 69, 19, 0.6), inset 0 0 15px rgba(255, 215, 0, 0.1);
+    border: 2px solid #B8860B;
     transition: all 0.3s ease;
 }
 
