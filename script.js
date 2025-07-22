@@ -1103,33 +1103,31 @@ function updateDrunkEffects() {
         return;
     }
     const container = document.querySelector('.container');
-    const button = document.querySelector('.drink-button');
-    // Remove existing drunk classes
+    const drinkButton = document.getElementById('drinkButton');
     removeDrunkEffects();
-    // 聚焦地獄效果
-    if (drinkCount >= 2 && drinkCount <= 3) {
+    // 新分層：3~4杯blur1，5~6杯blur2，7~8杯blur3，9+杯blur4
+    if (drinkCount >= 3 && drinkCount <= 4) {
         document.body.classList.add('drunk-bg-blur1');
-        button.classList.add('drunk-focus');
-    } else if (drinkCount >= 4 && drinkCount <= 5) {
+    } else if (drinkCount >= 5 && drinkCount <= 6) {
         document.body.classList.add('drunk-bg-blur2');
-        button.classList.add('drunk-focus');
-    } else if (drinkCount >= 6) {
+    } else if (drinkCount >= 7 && drinkCount <= 8) {
         document.body.classList.add('drunk-bg-blur3');
-        button.classList.add('drunk-focus');
+    } else if (drinkCount >= 9) {
+        document.body.classList.add('drunk-bg-blur4');
     }
     // 原本的晃動/文字效果
     if (drinkCount >= 2 && drinkCount <= 3) {
         container.classList.add('drunk-level-1');
     } else if (drinkCount >= 4 && drinkCount <= 5) {
         container.classList.add('drunk-level-2');
-        button.classList.add('drunk-button');
+        if (drinkButton) drinkButton.classList.add('drunk-button');
     } else if (drinkCount >= 6 && drinkCount <= 8) {
         container.classList.add('drunk-level-3');
-        button.classList.add('drunk-button');
+        if (drinkButton) drinkButton.classList.add('drunk-button');
         addDrunkText();
     } else if (drinkCount >= 9) {
         container.classList.add('drunk-level-4');
-        button.classList.add('drunk-button');
+        if (drinkButton) drinkButton.classList.add('drunk-button');
         addDrunkText();
     }
 }
@@ -1139,7 +1137,7 @@ function removeDrunkEffects() {
     const button = document.querySelector('.drink-button');
     container.classList.remove('drunk-level-1', 'drunk-level-2', 'drunk-level-3', 'drunk-level-4');
     button.classList.remove('drunk-button', 'drunk-focus');
-    document.body.classList.remove('drunk-bg-blur1', 'drunk-bg-blur2', 'drunk-bg-blur3');
+    document.body.classList.remove('drunk-bg-blur1', 'drunk-bg-blur2', 'drunk-bg-blur3', 'drunk-bg-blur4');
     // Remove drunk text effects
     const drunkTexts = document.querySelectorAll('.drunk-text');
     drunkTexts.forEach(element => {

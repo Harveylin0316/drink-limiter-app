@@ -789,21 +789,28 @@ footer {
 .drunk-bg-blur1 .message-section,
 .drunk-bg-blur1 .stats-modal,
 .drunk-bg-blur1 .settings-section {
-    filter: blur(2px) brightness(0.9);
-    opacity: 0.85;
+    filter: blur(1.5px) brightness(0.95);
+    opacity: 0.95;
     transition: filter 0.4s, opacity 0.4s;
 }
 .drunk-bg-blur2 .container,
 .drunk-bg-blur2 .message-section,
 .drunk-bg-blur2 .stats-modal,
 .drunk-bg-blur2 .settings-section {
-    filter: blur(4px) brightness(0.8);
-    opacity: 0.7;
+    filter: blur(3px) brightness(0.85);
+    opacity: 0.85;
 }
 .drunk-bg-blur3 .container,
 .drunk-bg-blur3 .message-section,
 .drunk-bg-blur3 .stats-modal,
 .drunk-bg-blur3 .settings-section {
+    filter: blur(5px) brightness(0.75);
+    opacity: 0.7;
+}
+.drunk-bg-blur4 .container,
+.drunk-bg-blur4 .message-section,
+.drunk-bg-blur4 .stats-modal,
+.drunk-bg-blur4 .settings-section {
     filter: blur(7px) brightness(0.6) grayscale(0.2);
     opacity: 0.5;
 }
