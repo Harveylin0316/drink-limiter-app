@@ -112,6 +112,16 @@ function init() {
     // Load data from localStorage
     loadData();
     loadSettings();
+    
+    // Double-check EmailJS configuration after loading settings
+    if (!settings.emailjsServiceId || !settings.emailjsTemplateId || !settings.emailjsPublicKey) {
+        console.log('⚠️ EmailJS config missing after loadSettings, restoring...');
+        settings.emailjsServiceId = 'service_9720w28';
+        settings.emailjsTemplateId = 'template_uzgtklk';
+        settings.emailjsPublicKey = 'JWyBvXCZOYniVIhjr';
+        settings.enableRealEmail = true;
+    }
+    
     updateDisplay();
     
     // Bind event listeners
@@ -180,8 +190,26 @@ function saveData() {
 function loadSettings() {
     const savedSettings = localStorage.getItem('appSettings');
     if (savedSettings) {
-        settings = { ...settings, ...JSON.parse(savedSettings) };
+        const parsed = JSON.parse(savedSettings);
+        // Preserve EmailJS configuration - never overwrite these
+        const emailConfig = {
+            emailjsServiceId: settings.emailjsServiceId,
+            emailjsTemplateId: settings.emailjsTemplateId,
+            emailjsPublicKey: settings.emailjsPublicKey,
+            enableRealEmail: settings.enableRealEmail
+        };
+        
+        settings = { ...settings, ...parsed, ...emailConfig };
+        console.log('📚 Settings loaded from localStorage, EmailJS config preserved');
+    } else {
+        console.log('📚 Using default settings (first time load)');
     }
+    
+    // Debug: Log EmailJS configuration status
+    console.log('🔧 EmailJS Config Status:');
+    console.log('   Service ID:', settings.emailjsServiceId || 'MISSING');
+    console.log('   Template ID:', settings.emailjsTemplateId || 'MISSING');
+    console.log('   Public Key:', settings.emailjsPublicKey || 'MISSING');
     
     // Update UI with loaded settings
     updateSettingsUI();
@@ -755,10 +783,22 @@ document.head.appendChild(style);
 window.addEventListener('load', function() {
     console.log('🚀 Page fully loaded, checking EmailJS...');
     
+    // Force ensure EmailJS configuration is set (in case localStorage corrupted it)
+    const ensureEmailJSConfig = () => {
+        if (!settings.emailjsServiceId || !settings.emailjsTemplateId || !settings.emailjsPublicKey) {
+            console.log('🔧 Restoring missing EmailJS configuration...');
+            settings.emailjsServiceId = 'service_9720w28';
+            settings.emailjsTemplateId = 'template_uzgtklk';
+            settings.emailjsPublicKey = 'JWyBvXCZOYniVIhjr';
+            settings.enableRealEmail = true;
+        }
+    };
+    
     // Give EmailJS a moment to initialize
     setTimeout(() => {
         if (typeof emailjs !== 'undefined') {
             console.log('✅ EmailJS SDK loaded successfully');
+            ensureEmailJSConfig();
             // Initialize EmailJS immediately when available
             emailjs.init(settings.emailjsPublicKey);
         } else {
@@ -769,6 +809,15 @@ window.addEventListener('load', function() {
 });
 
 // Extra feature: keyboard shortcuts
+// Debug feature: Clear localStorage if needed (Ctrl+Shift+C)
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+        if (confirm('Clear all saved settings and reset to default? (This will fix EmailJS issues)')) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+});
 document.addEventListener('keydown', function(e) {
     // Press spacebar to increase count
     if (e.code === 'Space') {
