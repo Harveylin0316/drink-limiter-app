@@ -9,7 +9,6 @@ let settings = {
     triggerCount: 3,
     customMessage: 'Help! I\'m drinking again and can\'t control myself!',
     enableSounds: true,
-    drinkPrice: 8.00,
     enableDrunkEffect: true,
     // EmailJS configuration (pre-configured)
     emailjsServiceId: 'service_9720w28',
@@ -17,6 +16,9 @@ let settings = {
     emailjsPublicKey: 'JWyBvXCZOYniVIhjr',
     enableRealEmail: true
 };
+
+// Fixed drink price for statistics calculation
+const DRINK_PRICE = 5.00;
 
 // DOM elements
 const drinkButton = document.getElementById('drinkButton');
@@ -43,11 +45,7 @@ const tabContents = document.querySelectorAll('.tab-content');
 const clearHistoryBtn = document.getElementById('clearHistory');
 const exportHistoryBtn = document.getElementById('exportHistory');
 // New feature elements
-const drinkPriceInput = document.getElementById('drinkPrice');
 const enableDrunkEffectInput = document.getElementById('enableDrunkEffect');
-const walletDisplay = document.getElementById('walletDisplay');
-const moneySavedToday = document.getElementById('moneySavedToday');
-const moneyMessage = document.getElementById('moneyMessage');
 
 // Message array - display different messages based on drink count
 const messages = {
@@ -196,7 +194,6 @@ function saveSettingsData() {
     settings.triggerCount = parseInt(triggerCountInput.value);
     settings.customMessage = customMessageInput.value.trim();
     settings.enableSounds = enableSoundsInput.checked;
-    settings.drinkPrice = parseFloat(drinkPriceInput.value) || 8.00;
     settings.enableDrunkEffect = enableDrunkEffectInput.checked;
     // EmailJS settings (pre-configured, no need to update)
     
@@ -235,7 +232,6 @@ function updateSettingsUI() {
     triggerCountInput.value = settings.triggerCount;
     customMessageInput.value = settings.customMessage;
     enableSoundsInput.checked = settings.enableSounds;
-    drinkPriceInput.value = settings.drinkPrice.toFixed(2);
     enableDrunkEffectInput.checked = settings.enableDrunkEffect;
     // EmailJS settings are pre-configured and hidden
 }
@@ -259,7 +255,6 @@ function resetSettingsToDefault() {
             triggerCount: 3,
             customMessage: 'Help! I\'m drinking again and can\'t control myself!',
             enableSounds: true,
-            drinkPrice: 8.00,
             enableDrunkEffect: true,
             // EmailJS configuration (pre-configured)
             emailjsServiceId: 'service_9720w28',
@@ -421,9 +416,6 @@ function updateDisplay() {
     
     // Update drunk effects
     updateDrunkEffects();
-    
-    // Update wallet display
-    updateWalletDisplay();
 }
 
 // Update message area
@@ -1057,50 +1049,11 @@ function addDrunkText() {
 }
 
 // Virtual Wallet Functions
-function updateWalletDisplay() {
-    if (drinkCount === 0 && !walletDisplay.classList.contains('hidden')) {
-        walletDisplay.classList.add('hidden');
-        return;
-    }
-    
-    if (drinkCount > 0) {
-        walletDisplay.classList.remove('hidden');
-        
-        // Calculate money spent today
-        const moneySpent = drinkCount * settings.drinkPrice;
-        moneySavedToday.textContent = `$${moneySpent.toFixed(2)}`;
-        
-        // Update motivational message
-        updateMoneyMessage(moneySpent);
-    }
-}
 
-function updateMoneyMessage(moneySpent) {
-    const messages = [
-        { max: 20, text: "Not too bad! You're keeping it reasonable 💪" },
-        { max: 50, text: "That's a nice dinner you just drank! 🍽️" },
-        { max: 100, text: "Whoa! That could've been a new pair of shoes! 👟" },
-        { max: 200, text: "You could've bought groceries for a week! 🛒" },
-        { max: 500, text: "That's a weekend getaway you just drank! ✈️" },
-        { max: Infinity, text: "You're entering legendary spending territory! 💸" }
-    ];
-    
-    const message = messages.find(m => moneySpent <= m.max);
-    moneyMessage.textContent = message.text;
-    
-    // Add extra encouragement if they're drinking a lot
-    if (moneySpent > 100) {
-        moneyMessage.style.color = '#f56565';
-        moneyMessage.style.fontWeight = 'bold';
-    } else {
-        moneyMessage.style.color = 'rgba(255,255,255,0.9)';
-        moneyMessage.style.fontWeight = 'normal';
-    }
-}
 
-// Update statistics with money calculations
+// Update statistics with money calculations (assuming $5 per drink)
 function updateTodayStatsWithMoney() {
-    const moneySpent = drinkCount * settings.drinkPrice;
+    const moneySpent = drinkCount * DRINK_PRICE;
     const couldHaveSaved = moneySpent; // If they had 0 drinks
     
     if (document.getElementById('moneySpentToday')) {
@@ -1114,7 +1067,7 @@ function updateTodayStatsWithMoney() {
 function updateWeekStatsWithMoney() {
     const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
     const weekDrinks = drinkHistory.filter(drink => drink.timestamp >= weekAgo);
-    const moneySpent = weekDrinks.length * settings.drinkPrice;
+    const moneySpent = weekDrinks.length * DRINK_PRICE;
     
     if (document.getElementById('moneySpentWeek')) {
         document.getElementById('moneySpentWeek').textContent = `$${moneySpent.toFixed(2)}`;
@@ -1124,7 +1077,7 @@ function updateWeekStatsWithMoney() {
 function updateMonthStatsWithMoney() {
     const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
     const monthDrinks = drinkHistory.filter(drink => drink.timestamp >= monthAgo);
-    const moneySpent = monthDrinks.length * settings.drinkPrice;
+    const moneySpent = monthDrinks.length * DRINK_PRICE;
     const potentialSavings = moneySpent; // What they could have saved
     
     if (document.getElementById('moneySpentMonth')) {
