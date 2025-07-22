@@ -51,50 +51,61 @@ const enableDrunkEffectInput = document.getElementById('enableDrunkEffect');
 
 // Message array - display different messages based on drink count
 const messages = {
-    0: {
-        text: "You haven't had any drinks today! Keep it up! 💪",
-        class: ""
-    },
-    1: {
-        text: "First drink... Welcome to the underworld bar! 🍻😈",
-        class: ""
-    },
-    2: {
-        text: "Second drink! The bartender in hell is smiling at you 😏🔥",
-        class: "warning"
-    },
-    3: {
-        text: "Third drink!!! You just unlocked the 'Inferno Sipper' badge 🏅🔥",
-        class: "danger"
-    },
-    4: {
-        text: "Fourth drink... Your liver is googling 'how to escape' 🫥",
-        class: "danger"
-    },
-    5: {
-        text: "Fifth drink! The devil is offering you a VIP seat 😈🍷",
-        class: "critical"
-    },
-    6: {
-        text: "Sixth drink... Your wallet just started crying 💸😭",
-        class: "critical"
-    },
-    7: {
-        text: "Seventh drink! You are now trending on Hell's Instagram 🔥📸",
-        class: "critical"
-    },
-    8: {
-        text: "Eighth drink... The bartender is asking for your autograph 🖊️🍺",
-        class: "critical"
-    },
-    9: {
-        text: "Ninth drink! You are now a legend in the underworld 🍻👹",
-        class: "critical"
-    },
-    10: {
-        text: "Tenth drink... The gates of hell are wide open for you 🚪🔥",
-        class: "critical"
-    }
+    0: [
+        "You’re still sober! Your liver is throwing a party. 🥳",
+        "No drinks yet! Your brain is high-fiving you. 🙌",
+        "Zero drinks. Your wallet is safe (for now). 💸"
+    ],
+    1: [
+        "First drink! Just warming up... 🍻",
+        "One drink in. Still in control (maybe). 😏",
+        "Cheers! Your liver just raised an eyebrow. 🤨"
+    ],
+    2: [
+        "Second drink! Now you’re getting interesting. 😅",
+        "Two drinks. Your liver is starting to worry. 😬",
+        "Double trouble! Your brain is watching closely. 👀"
+    ],
+    3: [
+        "Three drinks! Your liver is Googling 'how to escape.' 🏃‍♂️",
+        "Third round. Your future self is sending a warning. ⚠️",
+        "Three’s a crowd... in your stomach. 🍺🍺🍺"
+    ],
+    4: [
+        "Four drinks! Your liver is writing a complaint letter. 📝",
+        "Fourth round. Your brain is calling for backup. 🚨",
+        "You’re entering the blurry zone. 👓"
+    ],
+    5: [
+        "Five drinks! Your liver is packing its bags. 🧳",
+        "Fifth round. Your brain is considering a vacation. 🌴",
+        "You’re now a VIP at the regret club. 🎟️"
+    ],
+    6: [
+        "Six drinks! Your liver is crying in the corner. 😭",
+        "Sixth round. Your brain is buffering... ⏳",
+        "You’re officially in the danger zone. ⚡"
+    ],
+    7: [
+        "Seven drinks! Your liver is writing its will. 🪦",
+        "Seventh round. Your brain is on airplane mode. ✈️",
+        "You’re trending on ‘Bad Decisions’ TV. 📺"
+    ],
+    8: [
+        "Eight drinks! Your liver is calling its lawyer. 📞",
+        "Eighth round. Your brain is sending SOS signals. 🆘",
+        "You’re now a legend... or a warning. 🏅"
+    ],
+    9: [
+        "Nine drinks! Your liver is moving out. 🚚",
+        "Ninth round. Your brain is hiding under the table. 🫣",
+        "You’re one drink away from a Netflix documentary. 🎬"
+    ],
+    10: [
+        "Ten drinks! Your liver has left the chat. 👻",
+        "Tenth round. Your brain is writing a goodbye note. 📝",
+        "You’ve unlocked ‘Boss Level Hangover.’ 💀"
+    ]
 };
 
 // Advanced gag messages (randomly appear)
@@ -468,24 +479,17 @@ function updateDisplay() {
 // Update message area
 function updateMessage() {
     let message;
-    
-    // Custom message for trigger count
-    if (drinkCount === settings.triggerCount) {
-        message = {
-            text: `Drink ${drinkCount}!!! Your friends have been notified 📧😱`,
-            class: "danger"
-        };
-    } else if (drinkCount <= 10) {
-        message = messages[drinkCount];
+    if (messages[drinkCount]) {
+        const arr = messages[drinkCount];
+        message = arr[Math.floor(Math.random() * arr.length)];
+    } else if (drinkCount > 10) {
+        const arr = messages[10];
+        message = arr[Math.floor(Math.random() * arr.length)];
     } else {
-        // Special handling for over 10 drinks
-        message = {
-            text: `Drink ${drinkCount}... you've transcended human limits 🤖👽`,
-            class: "critical"
-        };
+        message = "Keep going!";
     }
     
-    messageArea.innerHTML = `<p>${message.text}</p>`;
+    messageArea.innerHTML = `<p>${message}</p>`;
     
     // Clear all style classes
     messageArea.className = 'message-area';
