@@ -340,6 +340,13 @@ footer {
     box-sizing: border-box;
 }
 
+.setting-group textarea[id="friendEmail"] {
+    min-height: 80px;
+    font-family: inherit;
+    resize: vertical;
+    line-height: 1.5;
+}
+
 .setting-group input[type="email"]:focus,
 .setting-group input[type="number"]:focus,
 .setting-group textarea:focus {

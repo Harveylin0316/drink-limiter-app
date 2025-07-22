@@ -11,11 +11,11 @@ let settings = {
     enableSounds: true,
     drinkPrice: 8.00,
     enableDrunkEffect: true,
-    // EmailJS configuration
-    emailjsServiceId: '',
-    emailjsTemplateId: '',
-    emailjsPublicKey: '',
-    enableRealEmail: false
+    // EmailJS configuration (pre-configured)
+    emailjsServiceId: 'service_9720w28',
+    emailjsTemplateId: 'template_uzgtklk',
+    emailjsPublicKey: 'JWyBvXCZOYniVIhjr',
+    enableRealEmail: true
 };
 
 // DOM elements
@@ -32,10 +32,7 @@ const friendEmailInput = document.getElementById('friendEmail');
 const triggerCountInput = document.getElementById('triggerCount');
 const customMessageInput = document.getElementById('customMessage');
 const enableSoundsInput = document.getElementById('enableSounds');
-const emailjsServiceIdInput = document.getElementById('emailjsServiceId');
-const emailjsTemplateIdInput = document.getElementById('emailjsTemplateId');
-const emailjsPublicKeyInput = document.getElementById('emailjsPublicKey');
-const enableRealEmailInput = document.getElementById('enableRealEmail');
+// EmailJS inputs are hidden but testEmail button is still visible
 const testEmailBtn = document.getElementById('testEmail');
 // Statistics elements
 const statsButton = document.getElementById('statsButton');
@@ -201,15 +198,11 @@ function saveSettingsData() {
     settings.enableSounds = enableSoundsInput.checked;
     settings.drinkPrice = parseFloat(drinkPriceInput.value) || 8.00;
     settings.enableDrunkEffect = enableDrunkEffectInput.checked;
-    // EmailJS settings
-    settings.emailjsServiceId = emailjsServiceIdInput.value.trim();
-    settings.emailjsTemplateId = emailjsTemplateIdInput.value.trim();
-    settings.emailjsPublicKey = emailjsPublicKeyInput.value.trim();
-    settings.enableRealEmail = enableRealEmailInput.checked;
+    // EmailJS settings (pre-configured, no need to update)
     
-    // Validation
-    if (settings.friendEmail && !isValidEmail(settings.friendEmail)) {
-        alert('Please enter a valid email address');
+    // Validation for multiple emails
+    if (settings.friendEmail && !areValidEmails(settings.friendEmail)) {
+        alert('Please enter valid email addresses');
         return;
     }
     
@@ -244,11 +237,7 @@ function updateSettingsUI() {
     enableSoundsInput.checked = settings.enableSounds;
     drinkPriceInput.value = settings.drinkPrice.toFixed(2);
     enableDrunkEffectInput.checked = settings.enableDrunkEffect;
-    // EmailJS settings
-    emailjsServiceIdInput.value = settings.emailjsServiceId;
-    emailjsTemplateIdInput.value = settings.emailjsTemplateId;
-    emailjsPublicKeyInput.value = settings.emailjsPublicKey;
-    enableRealEmailInput.checked = settings.enableRealEmail;
+    // EmailJS settings are pre-configured and hidden
 }
 
 // Open settings modal
@@ -272,11 +261,11 @@ function resetSettingsToDefault() {
             enableSounds: true,
             drinkPrice: 8.00,
             enableDrunkEffect: true,
-            // EmailJS configuration
-            emailjsServiceId: '',
-            emailjsTemplateId: '',
-            emailjsPublicKey: '',
-            enableRealEmail: false
+            // EmailJS configuration (pre-configured)
+            emailjsServiceId: 'service_9720w28',
+            emailjsTemplateId: 'template_uzgtklk',
+            emailjsPublicKey: 'JWyBvXCZOYniVIhjr',
+            enableRealEmail: true
         };
         
         updateSettingsUI();
@@ -289,6 +278,28 @@ function resetSettingsToDefault() {
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+}
+
+// Multiple emails validation
+function areValidEmails(emailsText) {
+    if (!emailsText) return true; // Empty is okay
+    
+    // Split by comma or newline and clean up
+    const emails = emailsText.split(/[,\n]/)
+        .map(email => email.trim())
+        .filter(email => email.length > 0);
+    
+    // Validate each email
+    return emails.every(email => isValidEmail(email));
+}
+
+// Parse multiple emails from text
+function parseEmails(emailsText) {
+    if (!emailsText) return [];
+    
+    return emailsText.split(/[,\n]/)
+        .map(email => email.trim())
+        .filter(email => email.length > 0 && isValidEmail(email));
 }
 
 // Show settings saved message
@@ -463,18 +474,18 @@ function updateButtonText() {
 
 // Send email notification (real or simulated)
 function sendEmailNotification() {
-    const email = settings.friendEmail || 'No email set';
+    const emails = parseEmails(settings.friendEmail);
     const message = settings.customMessage || 'Help! I\'m drinking again and can\'t control myself!';
     
-    console.log('📧 Sending email notification to:', email);
+    console.log('📧 Sending email notification to:', emails.length > 0 ? emails : 'No emails set');
     console.log('📝 Message:', message);
     
     // Show notification animation
     showEmailNotification();
     
-    if (settings.enableRealEmail && isEmailJSConfigured()) {
-        // Send real email using EmailJS
-        sendRealEmail(email, message, drinkCount);
+    if (settings.enableRealEmail && isEmailJSConfigured() && emails.length > 0) {
+        // Send real email to multiple recipients using EmailJS
+        sendRealEmailToMultiple(emails, message, drinkCount);
     } else {
         // Just simulation
         setTimeout(() => {
@@ -491,11 +502,11 @@ function isEmailJSConfigured() {
            typeof emailjs !== 'undefined';
 }
 
-// Send real email using EmailJS
-function sendRealEmail(toEmail, customMessage, drinkCount) {
-    if (!toEmail || !isValidEmail(toEmail)) {
-        console.error('Invalid email address');
-        showMessage('❌ Invalid email address!', '#f56565');
+// Send real email to multiple recipients using EmailJS
+function sendRealEmailToMultiple(emails, customMessage, drinkCount) {
+    if (!emails || emails.length === 0) {
+        console.error('No valid email addresses');
+        showMessage('❌ No valid email addresses!', '#f56565');
         return;
     }
 
@@ -503,7 +514,6 @@ function sendRealEmail(toEmail, customMessage, drinkCount) {
     emailjs.init(settings.emailjsPublicKey);
     
     const templateParams = {
-        to_email: toEmail,
         from_name: 'Drink Limiter App',
         subject: 'Emergency Notification - Drinking Alert!',
         message: customMessage,
@@ -511,26 +521,61 @@ function sendRealEmail(toEmail, customMessage, drinkCount) {
         timestamp: new Date().toLocaleString()
     };
 
-    emailjs.send(settings.emailjsServiceId, settings.emailjsTemplateId, templateParams)
-        .then((response) => {
-            console.log('✅ Real email sent successfully!', response.status, response.text);
-            showMessage('✅ Real email sent successfully!', '#48bb78');
-        })
-        .catch((error) => {
-            console.error('❌ Failed to send real email:', error);
-            showMessage('❌ Failed to send email: ' + error.text, '#f56565');
-        });
+    // Send email to each recipient
+    let successCount = 0;
+    let totalEmails = emails.length;
+    
+    emails.forEach((email, index) => {
+        const emailParams = {
+            ...templateParams,
+            to_email: email
+        };
+        
+        emailjs.send(settings.emailjsServiceId, settings.emailjsTemplateId, emailParams)
+            .then((response) => {
+                console.log(`✅ Email sent successfully to ${email}!`, response.status, response.text);
+                successCount++;
+                
+                // Show success message after all emails are processed
+                if (index === totalEmails - 1) {
+                    if (successCount === totalEmails) {
+                        showMessage(`✅ All ${totalEmails} emails sent successfully!`, '#48bb78');
+                    } else {
+                        showMessage(`⚠️ ${successCount}/${totalEmails} emails sent successfully!`, '#d69e2e');
+                    }
+                }
+            })
+            .catch((error) => {
+                console.error(`❌ Failed to send email to ${email}:`, error);
+                
+                // Show error message after all emails are processed
+                if (index === totalEmails - 1) {
+                    if (successCount === 0) {
+                        showMessage('❌ Failed to send all emails!', '#f56565');
+                    } else {
+                        showMessage(`⚠️ ${successCount}/${totalEmails} emails sent successfully!`, '#d69e2e');
+                    }
+                }
+            });
+    });
+}
+
+// Legacy function for backward compatibility
+function sendRealEmail(toEmail, customMessage, drinkCount) {
+    sendRealEmailToMultiple([toEmail], customMessage, drinkCount);
 }
 
 // Send test email
 function sendTestEmail() {
-    if (!settings.friendEmail) {
-        alert('Please enter a friend\'s email address first!');
+    const emails = parseEmails(settings.friendEmail);
+    
+    if (emails.length === 0) {
+        alert('Please enter at least one email address first!');
         return;
     }
     
     if (!isEmailJSConfigured()) {
-        alert('Please configure EmailJS settings first!');
+        alert('EmailJS configuration error! Please contact support.');
         return;
     }
     
@@ -540,13 +585,13 @@ function sendTestEmail() {
     
     const testMessage = 'This is a test message from your Drink Limiter app. If you receive this, the email configuration is working correctly!';
     
-    sendRealEmail(settings.friendEmail, testMessage, 0);
+    sendRealEmailToMultiple(emails, testMessage, 0);
     
-    // Re-enable button after 3 seconds
+    // Re-enable button after 5 seconds (more time for multiple emails)
     setTimeout(() => {
         testEmailBtn.disabled = false;
         testEmailBtn.textContent = '🧪 Send Test Email';
-    }, 3000);
+    }, 5000);
 }
 
 // Show email sending notification
@@ -564,23 +609,32 @@ function showEmailNotification() {
         z-index: 1000;
         font-weight: bold;
         animation: slideIn 0.5s ease;
-        max-width: 300px;
+        max-width: 350px;
     `;
     
-    const emailText = settings.friendEmail ? 
-        `📧 Emergency notification sent to:<br><small>${settings.friendEmail}</small>` : 
-        '📧 Emergency notification sent!<br><small>Configure email in settings</small>';
+    const emails = parseEmails(settings.friendEmail);
+    let emailText;
+    
+    if (emails.length === 0) {
+        emailText = '📧 Emergency notification sent!<br><small>Configure emails in settings</small>';
+    } else if (emails.length === 1) {
+        emailText = `📧 Emergency notification sent to:<br><small>${emails[0]}</small>`;
+    } else if (emails.length <= 3) {
+        emailText = `📧 Emergency notification sent to:<br><small>${emails.join('<br>')}</small>`;
+    } else {
+        emailText = `📧 Emergency notification sent to:<br><small>${emails.slice(0, 2).join('<br>')}<br>...and ${emails.length - 2} more</small>`;
+    }
     
     notification.innerHTML = emailText;
     document.body.appendChild(notification);
     
-    // Auto remove after 3 seconds
+    // Auto remove after 4 seconds (longer for multiple emails)
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.5s ease';
         setTimeout(() => {
             document.body.removeChild(notification);
         }, 500);
-    }, 3000);
+    }, 4000);
 }
 
 // Show advanced gag messages
