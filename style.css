@@ -783,3 +783,41 @@ footer {
     50% { transform: translateX(-2px) rotate(-0.5deg); }
     75% { transform: translateX(4px) rotate(0.5deg); }
 } 
+
+/* 地獄聚焦效果 */
+.drunk-bg-blur1 .container,
+.drunk-bg-blur1 .message-section,
+.drunk-bg-blur1 .stats-modal,
+.drunk-bg-blur1 .settings-section {
+    filter: blur(2px) brightness(0.9);
+    opacity: 0.85;
+    transition: filter 0.4s, opacity 0.4s;
+}
+.drunk-bg-blur2 .container,
+.drunk-bg-blur2 .message-section,
+.drunk-bg-blur2 .stats-modal,
+.drunk-bg-blur2 .settings-section {
+    filter: blur(4px) brightness(0.8);
+    opacity: 0.7;
+}
+.drunk-bg-blur3 .container,
+.drunk-bg-blur3 .message-section,
+.drunk-bg-blur3 .stats-modal,
+.drunk-bg-blur3 .settings-section {
+    filter: blur(7px) brightness(0.6) grayscale(0.2);
+    opacity: 0.5;
+}
+
+/* 喝酒按鈕聚焦特效 */
+.drink-button.drunk-focus {
+    filter: none !important;
+    opacity: 1 !important;
+    background: linear-gradient(135deg, #ff4444, #ff0000, #fff200);
+    color: #fff;
+    box-shadow: 0 0 30px 10px #ff4444, 0 0 60px 20px #fff200;
+    border: 3px solid #fff200;
+    z-index: 10;
+    position: relative;
+    text-shadow: 0 0 10px #fff, 0 0 20px #ff4444;
+    transition: all 0.3s;
+} 
